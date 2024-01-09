@@ -55,11 +55,8 @@ public class CardService {
 
         public Page<CardResponseDto> getAll(Pageable pageable, String predicate) {
         Page<Card> all = cardRepository.findAll(pageable);
-        List<CardResponseDto> cardResponseDtos = all.getContent().stream()
-                .map(card -> modelMapper.map(card, CardResponseDto.class))
-                .collect(Collectors.toList());
 
-        return new PageImpl<>(cardResponseDtos, all.getPageable(), all.getTotalElements());
+       return all.map(card -> modelMapper.map(card, CardResponseDto.class));
     }
 
 }
