@@ -27,7 +27,7 @@ public class AccountNumberController {
     @GetMapping
     public ResponseEntity<Page<AccountNumberResponseDto>> getAll(Pageable pageble,
                                                                  @RequestParam(required = false) String predicate) {
-        Page<AccountNumberResponseDto> allUser = service.getAllUser(pageble, predicate);
+        Page<AccountNumberResponseDto> allUser = service.getAll(pageble, predicate);
         return ResponseEntity.ok(allUser);
     }
 

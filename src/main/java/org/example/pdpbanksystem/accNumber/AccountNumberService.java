@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+
 import java.util.Random;
 
 
@@ -49,22 +50,14 @@ public class AccountNumberService {
     }
 
 
-    public Page<AccountNumberResponseDto> getAllUser(Pageable pageable, String predicate) {
 
+    public Page<AccountNumberResponseDto> getAll(Pageable pageable, String predicate) {
         Specification<AccountNumber> build = SpecificationBuilder.build(predicate);
 
-        Page<AccountNumber> resultPage;
-
-        if (build == null) {
-            resultPage = accountNumberRepository.findAll(pageable);
-        } else {
-            resultPage = accountNumberRepository.findAll(build, pageable);
-        }
-
-        return resultPage.map(entity -> {
-            AccountNumberResponseDto dto = modelMapper.map(entity, AccountNumberResponseDto.class);
-            return dto;
-        });
+        Page<AccountNumber> resultPage = (build == null)
+                ? accountNumberRepository.findAll(pageable)
+                : accountNumberRepository.findAll(build, pageable);
+        return resultPage.map(entity -> modelMapper.map(entity, AccountNumberResponseDto.class));
     }
 
 
