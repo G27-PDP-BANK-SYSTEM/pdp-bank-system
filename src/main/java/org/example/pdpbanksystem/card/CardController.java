@@ -36,7 +36,7 @@ public class CardController {
      @GetMapping()
     public ResponseEntity<Page<CardResponseDto>>getAll(Pageable pageable, @RequestParam(required = false) String predicate){
          Page<CardResponseDto> all = cardService.getAll(pageable, predicate);
-          return ResponseEntity.status(HttpStatus.CREATED)
+          return ResponseEntity.ok()
                 .body(all);
      }
 
@@ -48,7 +48,7 @@ public class CardController {
     @PutMapping("/{id}")
     public ResponseEntity<CardResponseDto>update(@PathVariable Integer id, @RequestBody CardUpdateDto cardUpdateDto){
         CardResponseDto cardResponseDto = cardService.update(id, cardUpdateDto);
-         return ResponseEntity.ok()
+         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(cardResponseDto);
     }
 
