@@ -2,10 +2,14 @@ package org.example.pdpbanksystem.user;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.example.pdpbanksystem.accNumber.AccountNumberService;
+import org.example.pdpbanksystem.accNumber.dto.AccountNumberResponseDto;
+import org.example.pdpbanksystem.accNumber.entity.AccountNumber;
 import org.example.pdpbanksystem.common.service.GenericCrudService;
 import org.example.pdpbanksystem.jwt.JwtService;
 import org.example.pdpbanksystem.user.dto.*;
 import org.example.pdpbanksystem.user.entity.User;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -25,13 +29,20 @@ public class UserService extends GenericCrudService<User, Integer, UserCreateDto
     private final Class<User> EntityClass = User.class;
     private final PasswordEncoder passwordEncoder;
 
+    private final AccountNumberService accountNumberService;
+    ModelMapper modelMapper = new ModelMapper();
     @Override
     protected User save(UserCreateDto userCreateDto) {
         User entity = mapper.toEntity(userCreateDto);
         entity.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
+
+        AccountNumberResponseDto accountNumberResponseDto = accountNumberService.create();
+        AccountNumber number = modelMapper
+                .map(accountNumberResponseDto, AccountNumber.class);
+        entity.setAccountNumber(number);
+
         return repository.save(entity);
     }
-
     public UserSignInResponseDto signIn(UserSignInDto signInDto) {
         String userEmail = signInDto.getEmail();
 
