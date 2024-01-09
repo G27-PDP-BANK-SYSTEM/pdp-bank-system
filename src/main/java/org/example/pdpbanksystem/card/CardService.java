@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,12 +25,13 @@ public class CardService {
     private final CardRepository cardRepository;
 
     private final ModelMapper modelMapper;
+
     public CardResponseDto update(Integer id, CardUpdateDto cardUpdateDto) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Card not found"));
-        modelMapper.map(cardUpdateDto,card);
+        modelMapper.map(cardUpdateDto, card);
         Card save = cardRepository.save(card);
-        return modelMapper.map(save,CardResponseDto.class);
+        return modelMapper.map(save, CardResponseDto.class);
     }
 
     @Transactional
@@ -40,20 +42,20 @@ public class CardService {
     }
 
     public CardResponseDto getById(Integer id) {
-         Card card = cardRepository.findById(id)
+        Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Card not found"));
 
-         return modelMapper.map(card, CardResponseDto.class);
+        return modelMapper.map(card, CardResponseDto.class);
     }
 
 
     public void delete(Integer id) {
-       Card card = cardRepository.findById(id)
+        Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Card not found"));
-       cardRepository.deleteById(card.getId());
+        cardRepository.deleteById(card.getId());
     }
 
-        public Page<CardResponseDto> getAll(Pageable pageable, String predicate) {
+    public Page<CardResponseDto> getAll(Pageable pageable, String predicate) {
         Page<Card> all = cardRepository.findAll(pageable);
         List<CardResponseDto> cardResponseDtos = all.getContent().stream()
                 .map(card -> modelMapper.map(card, CardResponseDto.class))
@@ -61,5 +63,55 @@ public class CardService {
 
         return new PageImpl<>(cardResponseDtos, all.getPageable(), all.getTotalElements());
     }
+
+
+
+    private static boolean isLuhnValid(String cardNumber) {
+        cardNumber = cardNumber.replaceAll("\\s", "");
+
+        if (!cardNumber.matches("\\d+")) {
+            return false;
+        }
+
+        int sum = 0;
+        boolean alternate = false;
+
+        for (int i = cardNumber.length() - 1; i >= 0; i--) {
+
+            int digit = Character.getNumericValue(cardNumber.charAt(i));
+
+            if (alternate) {
+                digit *= 2;
+                if (digit > 9) {
+                    digit -= 9;
+                }
+            }
+
+            sum += digit;
+            alternate = !alternate;
+        }
+
+        return sum % 10 == 0;
+    }
+
+
+
+
+
+    private boolean isBlockedCard(Card card)
+    {
+        LocalDate currentDate = LocalDate.now();
+
+        if (card.getExpirationDate().isBefore(currentDate) || card.getIsBlocked())
+        {
+            return true;
+        }
+        else
+            return  false;
+
+    }
+
+
+
 
 }

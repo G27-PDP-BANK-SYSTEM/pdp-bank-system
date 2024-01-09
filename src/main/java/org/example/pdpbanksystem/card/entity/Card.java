@@ -25,5 +25,7 @@ public class Card {
     private String cvv;
     private String ownerName;
     private Double balance;
+    private Boolean isBlocked;
+
 
 }
